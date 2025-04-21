@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 
@@ -20,7 +21,7 @@ public class ServerGUI extends JFrame {
         inputField = new JTextField();
         inputField.addActionListener(e -> {
             String msg = inputField.getText();
-            if (saida != null && !msg.trim().isEmpty()) { // Evitar mensagens em branco
+            if (saida != null) {
                 saida.println(msg);
                 chatArea.append("Você: " + msg + "\n");
                 inputField.setText("");
@@ -42,15 +43,12 @@ public class ServerGUI extends JFrame {
                 Socket cliente = servidor.accept();
                 chatArea.append("Cliente conectado: " + cliente.getInetAddress() + "\n");
 
-                try (BufferedReader entrada = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
-                     PrintWriter saida = new PrintWriter(cliente.getOutputStream(), true)) {
+                BufferedReader entrada = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
+                saida = new PrintWriter(cliente.getOutputStream(), true);
 
-                    this.saida = saida; // Atribuir ao atributo da classe
-
-                    String linha;
-                    while ((linha = entrada.readLine()) != null) {
-                        chatArea.append("Cliente: " + linha + "\n");
-                    }
+                String linha;
+                while ((linha = entrada.readLine()) != null) {
+                    chatArea.append("Cliente: " + linha + "\n");
                 }
             } catch (IOException e) {
                 chatArea.append("Erro no servidor: " + e.getMessage() + "\n");
